@@ -2,13 +2,22 @@ var App = App || {};
 
 App.Router = Backbone.Router.extend({
   routes: {
-    "": "homeView"
-    // "*designers": "homeView"
+    '': 'homeView',
+    designers: 'designerView',
+    catalog: 'catalogView'
   },
 
-  initialize: function(options) {},
+  initialize: function(options) {
+    new App.views.MenuView();
+  },
 
   homeView: function() {
     new App.views.HomeView();
+  },
+
+  designerView: function() {
+  },
+
+  catalogView: function() {
   }
 });

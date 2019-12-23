@@ -19406,12 +19406,12 @@ var App = {
 ;var App = App || {};
 
 App.views.HomeView = Backbone.View.extend({
-  el: "#root",
+  el: '#root',
 
   events: {},
 
   initialize: function() {
-    _.bindAll(this, "render");
+    _.bindAll(this, 'render');
     this.render();
   },
 
@@ -19421,7 +19421,6 @@ App.views.HomeView = Backbone.View.extend({
       var template = Handlebars.compile(templateHtml);
       var finalHtml = template();
       self.$el.html(finalHtml);
-      this.menuView = new App.views.MenuView();
     });
     return self;
   }
@@ -19429,14 +19428,14 @@ App.views.HomeView = Backbone.View.extend({
 ;var App = App || {};
 
 App.views.MenuView = Backbone.View.extend({
-  el: "#menu",
+  el: '#menu',
 
   events: {
-    "click a": "onClick"
+    'click a': 'onClick'
   },
 
   initialize: function() {
-    _.bindAll(this, "render");
+    _.bindAll(this, 'render');
     this.render();
   },
 
@@ -19447,9 +19446,9 @@ App.views.MenuView = Backbone.View.extend({
       var finalHtml = template();
       self.$el.html(finalHtml);
     });
-  	return self;
+    return self;
   },
-  onClick: function( e ) {
+  onClick: function(e) {
     // Uses the navigate() method save the application as URL
     // App.router.navigate('/');
   }
@@ -19458,14 +19457,23 @@ App.views.MenuView = Backbone.View.extend({
 
 App.Router = Backbone.Router.extend({
   routes: {
-    "": "homeView"
-    // "*designers": "homeView"
+    '': 'homeView',
+    designers: 'designerView',
+    catalog: 'catalogView'
   },
 
-  initialize: function(options) {},
+  initialize: function(options) {
+    new App.views.MenuView();
+  },
 
   homeView: function() {
     new App.views.HomeView();
+  },
+
+  designerView: function() {
+  },
+
+  catalogView: function() {
   }
 });
 ;(function() {

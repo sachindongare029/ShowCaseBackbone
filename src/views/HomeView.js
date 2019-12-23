@@ -1,12 +1,12 @@
 var App = App || {};
 
 App.views.HomeView = Backbone.View.extend({
-  el: "#root",
+  el: '#root',
 
   events: {},
 
   initialize: function() {
-    _.bindAll(this, "render");
+    _.bindAll(this, 'render');
     this.render();
   },
 
@@ -16,7 +16,6 @@ App.views.HomeView = Backbone.View.extend({
       var template = Handlebars.compile(templateHtml);
       var finalHtml = template();
       self.$el.html(finalHtml);
-      this.menuView = new App.views.MenuView();
     });
     return self;
   }

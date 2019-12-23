@@ -41,18 +41,18 @@ module.exports = function(grunt) {
         dest: 'build/<%= pkg.name %>.min.js'
       }
     },
-    // less: {
-    //   development: {
-    //     options: {
-    //       compress: true,
-    //       yuicompress: true,
-    //       optimization: 2
-    //     },
-    //     files: {
-    //       'assets/css/app.css': 'assets/css/app.less'
-    //     }
-    //   }
-    // },
+    less: {
+      development: {
+        options: {
+          compress: true,
+          yuicompress: true,
+          optimization: 2
+        },
+        files: {
+          'assets/css/app.css': 'assets/css/app.less'
+        }
+      }
+    },
     concat_css: {
       options: {
         // Task-specific options go here.
@@ -72,13 +72,13 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  // grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-concat-css');
 
 
-  grunt.registerTask('default', ['copy', 'concat', 'concat_css', 'watch']);
+  grunt.registerTask('default', ['copy', 'less', 'concat', 'concat_css', 'watch']);
 
 };
