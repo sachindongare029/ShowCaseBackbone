@@ -16,6 +16,7 @@ App.Router = Backbone.Router.extend({
   },
 
   designerView: function() {
+    new App.views.DesignerViewContainer();
   },
 
   catalogView: function() {

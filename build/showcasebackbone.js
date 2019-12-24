@@ -19393,7 +19393,89 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ })
 /******/ ])
 });
-;;// Global configurations
+;;var App = App || {};
+
+var TemplateManager = (function() {
+  var cache, defaults, fetchAndCache;
+
+  defaults = {
+    path: '/src/templates',
+    ext: '.hbs'
+  };
+
+  cache = {};
+
+  function TemplateManager(options) {
+    this.options = options != null ? options : {};
+    _.defaults(this.options, defaults);
+    if (this.options.cache) {
+      cache = this.options.cache;
+    }
+  }
+
+  TemplateManager.prototype.load = function(tpl, callback) {
+    if (_.has(cache, tpl)) {
+      return callback(cache[tpl]);
+    }
+    tpl = fetchAndCache.apply(this, [tpl, callback]);
+    if (!callback) {
+      return tpl;
+    }
+    return tpl.done(function(tplString) {
+      if (callback) {
+        return callback(tplString);
+      }
+    });
+  };
+
+  fetchAndCache = function(tpl, callback) {
+    var deferred,
+      tplPath,
+      _this = this;
+    deferred = new $.Deferred();
+    tplPath = '' + this.options.path + tpl + this.options.ext;
+    $.ajax({
+      url: tplPath,
+      type: 'GET',
+      dataType: 'text',
+      cache: true,
+      success: function(tplString) {
+        cache[tpl] = Handlebars.compile(tplString);
+        cache[tpl].tplString = tplString;
+        return deferred.resolve(cache[tpl]);
+      }
+    });
+    return deferred;
+  };
+
+  return TemplateManager;
+})();
+
+// Intitalize template manager
+App.templateManager = new TemplateManager();
+;Handlebars.registerHelper('list', function(designers, options) {
+  var Chars = '';
+  for (var j = 0; j < designers.length; j++) {
+    Chars = Chars + designers[j].name[0];
+  }
+  var startWithCharacters = _.uniq(Chars);
+
+  startWithCharacters.sort();
+  var out = '<div class="designers-sort">';
+
+  for (var i = 0; i < startWithCharacters.length; i++) {
+    out = out + '<h2>' + startWithCharacters[i] + '</h2>' + '<hr/>';
+
+    for (var j = 0; j < designers.length; j++) {
+      if (designers[j].name.substr(0, 1) === startWithCharacters[i]) {
+        out = out + '<p>' + designers[j].name + '</p>';
+      }
+    }
+  }
+
+  return out + '</div>';
+});
+;// Global configurations
 Handlebars.logger.level = 0;
 
 var App = {
@@ -19403,6 +19485,58 @@ var App = {
   helpers: {},
   eventBus: _.extend({}, Backbone.Events)
 };
+;var App = App || {};
+
+App.models.DesignersDataModel = Backbone.Model.extend({
+  url: "https://opt-showcase-api-stage.optcentral.com/brands/:_id",
+  defaults: {
+    _id: "",
+    name: ""
+  }
+});
+
+;var App = App || {};
+
+App.collections.DesignersDataCollection = Backbone.Collection.extend({
+  url:
+    "https://opt-showcase-api-stage.optcentral.com/brands?brand_ids=3%2C2%2C46%2C463%2C581%2C50%2C1119%2C145%2C1801%2C2086&retailerId=143&showcase=OOO&status=Active",
+  model: App.models.DesignersDataModel
+});;var App = App || {};
+
+App.views.DesignerViewContainer = Backbone.View.extend({
+  el: '#root',
+
+  events: {
+    "click a[href='#']": "onOptionClick"
+  },
+
+  initialize: function() {
+    _.bindAll(this, 'render');
+    var self = this;
+    this.collection = new App.collections.DesignersDataCollection();
+    this.collection.fetch().done(function() {
+      self.render();
+    });
+    this.listenTo(this.collection, 'sync', self.render);
+  },
+
+  render: function() {
+    var self = this;
+    $.get('/src/templates/designers.hbs', function(templateHtml) {
+      var template = Handlebars.compile(templateHtml);
+      self.$el.html(
+        template({
+          designers: self.collection.toJSON()
+        })
+      );
+    });
+    return this;
+  },
+
+  onOptionClick: function(e) {
+    
+  }
+});
 ;var App = App || {};
 
 App.views.HomeView = Backbone.View.extend({
@@ -19471,6 +19605,7 @@ App.Router = Backbone.Router.extend({
   },
 
   designerView: function() {
+    new App.views.DesignerViewContainer();
   },
 
   catalogView: function() {
