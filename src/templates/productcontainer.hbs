@@ -1,0 +1,79 @@
+{{#if products.length}}
+{{!-- {{log products}} --}}
+<div class="total-products">
+  <div class="product-header row">
+    <div class="col-xs-4"></div>
+    <div class="col-xs-6 details-header">Details</div>
+    <div class="col-xs-2 price-header">Price</div>
+  </div>
+  <div class="row">
+    {{#each products}}
+    <div class="product col-md-4">
+      <a class="product-link" href="#/product/{{id}}">
+        <img src="{{images.[0]}}" alt="Product Hero Image" class="img-responsive product-img">
+      </a>
+      <div class="product-description">
+        <p class="product-name">{{brand.name}}</p>
+        <p class="product-price"><strong>${{pricing.retail}}</strong></p>
+      </div>
+      <div class="product-action-links">
+        <div class="shopping-bag">
+          <button>
+            <i class="fa fa-shopping-bag" aria-hidden="true"></i>
+            <div>Order</div>
+          </button>
+        </div>
+        <span class="icon-divider"></span>
+        <div class="wishlist">
+          <button>
+            <i class="fa fa-heart" aria-hidden="true"></i>
+            <div>Wishlist</div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="product-list-view">
+      <div class="row">
+        <div class="col-md-4">
+          <img src="{{images.[0]}}" alt="Product Hero Image" class="img-responsive product-img-list">
+        </div>
+        <div class="col-md-6 brand-details">
+          <p><strong>Brand Name: </strong>{{brand.name}}</p>
+          <p><strong>Style #: </strong>{{opt.styleNumber}}</p>
+          <p><strong>Metal: </strong>{{attributes.Metal}}</p>
+          <p><strong>OOO Type: </strong>{{attributes.[OOO Type]}}</p>
+        </div>
+        <div class="col-md-2 pricing-details">
+          <p><strong>Pricing Upon Request</strong></p>
+        </div>
+      </div>
+      <div class="product-action-bar">
+        <a href="#/product/5a2a5de8474465414b84615e">
+          <button type="button" class="btn btn-transparent btn-more-details">
+            <span aria-hidden="true" class="fa fa-list-alt"></span>
+            <span class="action-btn">More Details</span>
+          </button>
+        </a>
+        <span class=""> |</span>
+        <button type="button" class="btn btn-transparent btn-inquire">
+          <i class="fa fa-question-circle" aria-hidden="true"></i>
+          <span class="action-btn">Inquire</span>
+        </button>
+        <span class=""> |</span>
+        <button type="button" class="btn btn-transparent btn-add-to-whishlist">
+          <i class="fa fa-heart" aria-hidden="true"></i>
+          <span class="action-btn">Add to Wishlist</span>
+        </button>
+        <span class=""> |</span>
+        <button type="button" class="btn btn-transparent btn-buy-now">
+          <span aria-hidden="true" class="fa fa-shopping-bag"></span>
+          <span class="action-btn">Order</span></button>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+{{else}}
+  <div class="alert alert-info">Product(s) not found.</div>
+  {{!-- <div class="spinner-div"><i class="fa fa-spinner fa-spin" style="font-size:36px"></i></div> --}}
+{{/if}}

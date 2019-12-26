@@ -31,6 +31,8 @@ App.views.DesignerViewContainer = Backbone.View.extend({
   },
 
   onOptionClick: function(e) {
-    
+    e.preventDefault();
+    var node = $('.designers-sort').find("h2:contains('" + e.target.text + "')");
+    $('html, body').animate({ scrollTop: node.position().top + 200 }, 'slow');
   }
 });

@@ -21,7 +21,7 @@ module.exports = function(grunt) {
           'src/utils/templateLoader.js',
           'src/utils/handlebarHelpers.js',
           'src/index.js',
-          // 'src/utils/helpers.js',
+          'src/utils/helpers.js',
           'src/models/*.js',
           'src/collections/*.js',
           'src/views/*.js',

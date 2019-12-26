@@ -19485,6 +19485,26 @@ var App = {
   helpers: {},
   eventBus: _.extend({}, Backbone.Events)
 };
+;var App = App || {}
+
+App.helpers = {
+	setFilters: function(newFilters) {
+		var oldFilters = this.getFilters();
+		var finalFilters = _.extend({}, oldFilters, newFilters);
+		localStorage.setItem('filters', JSON.stringify(finalFilters));
+	},
+	getFilters: function() {
+		var filters = localStorage.getItem('filters');
+		if(!filters) {
+			return {}
+		};
+		filters = JSON.parse(filters);
+		return filters;
+	}
+}
+
+
+
 ;var App = App || {};
 
 App.models.DesignersDataModel = Backbone.Model.extend({
@@ -19497,11 +19517,99 @@ App.models.DesignersDataModel = Backbone.Model.extend({
 
 ;var App = App || {};
 
+App.models.ProductModel = Backbone.Model.extend({
+  url: function() {
+    return (
+      'https://opt-showcase-api.optcentral.com/products/' + this.get('_id')
+    );
+  },
+  defaults: {
+    _id: null,
+    title: '',
+    sku: null,
+    status: 'Active',
+    pricing: null,
+    images: []
+  }
+});
+;var App = App || {};
+
 App.collections.DesignersDataCollection = Backbone.Collection.extend({
   url:
     "https://opt-showcase-api-stage.optcentral.com/brands?brand_ids=3%2C2%2C46%2C463%2C581%2C50%2C1119%2C145%2C1801%2C2086&retailerId=143&showcase=OOO&status=Active",
   model: App.models.DesignersDataModel
 });;var App = App || {};
+
+var base_url = 'https://opt-showcase-api.optcentral.com/products';
+App.collections.ProductCollection = Backbone.Collection.extend({
+  url: function() {
+    return base_url;
+  },
+  model: App.models.ProductModel,
+  parse: function(response) {
+    this.totalCount = response.totalCount;
+    return response.data;
+  }
+});
+;var App = App || {};
+
+App.views.CatalogView = Backbone.View.extend({
+  el: '#root',
+
+  events: {},
+
+  initialize: function() {
+    _.bindAll(this, 'render', 'doFetch');
+    this.collection = new App.collections.ProductCollection();
+    App.helpers.setFilters({
+      page: 1,
+      limit: 24,
+      sort: 'pricing.retail;desc'
+    });
+    App.eventBus.on(
+      "GET_PRODUCTS",
+      function(eventData) {
+        this.doFetch();
+      }.bind(this)
+    );
+
+    App.eventBus.trigger("GET_PRODUCTS");
+  },
+
+  doFetch: function() {
+    var self = this;
+    var filters = App.helpers.getFilters();
+    this.collection.fetch({ data: filters }).done(function() {
+      self.render();
+    });
+  },
+
+  render: function() {
+    var self = this;
+    $.get('/src/templates/catalog.hbs', function(templateHtml) {
+      var template = Handlebars.compile(templateHtml);
+      var finalHtml = template();
+      self.$el.html(finalHtml);
+      self.renderSidebarView();
+      self.renderProductContainerView();
+    });
+    return self;
+  },
+
+  renderSidebarView: function() {
+    new App.views.SideBarView();
+  },
+
+  renderProductContainerView: function() {
+    new App.views.TopActionBarView({
+      totalCount: this.collection.totalCount
+    });
+    new App.views.ProductView({
+      products: this.collection.toJSON()
+    });
+  }
+});
+;var App = App || {};
 
 App.views.DesignerViewContainer = Backbone.View.extend({
   el: '#root',
@@ -19534,7 +19642,9 @@ App.views.DesignerViewContainer = Backbone.View.extend({
   },
 
   onOptionClick: function(e) {
-    
+    e.preventDefault();
+    var node = $('.designers-sort').find("h2:contains('" + e.target.text + "')");
+    $('html, body').animate({ scrollTop: node.position().top + 200 }, 'slow');
   }
 });
 ;var App = App || {};
@@ -19589,6 +19699,131 @@ App.views.MenuView = Backbone.View.extend({
 });
 ;var App = App || {};
 
+App.views.ProductView = Backbone.View.extend({
+  el: '#catalog__product-container',
+
+  events: {
+    'mouseenter .product': 'mouseentercard'
+  },
+
+  initialize: function(options) {
+    this.options = options || {};
+    _.bindAll(this, "render", "selectView");
+    App.eventBus.on(
+      "GRID_UPDATE",
+      function(eventData) {
+        this.selectView(eventData);
+      }.bind(this)
+    );
+
+    App.eventBus.trigger("GRID_UPDATE");
+    this.render();
+  },
+
+  selectView: function(eventData) {
+  },
+
+  render: function() {
+    var self = this;
+    $.get('/src/templates/productcontainer.hbs', function(templateHtml) {
+      var template = Handlebars.compile(templateHtml);
+      var finalHtml = template({
+        products: self.options.products
+      });
+      self.$el.html(finalHtml);
+    });
+    return self;
+  },
+
+  mouseentercard: function(e) {
+    e.preventDefault();
+    var actionNode = e.target.querySelector('.product-action-links');
+    $(actionNode).addClass('product-hovered');
+    $(e.target).hover(
+      function() {
+        $(actionNode).addClass('product-hovered');
+      },
+      function() {
+        $(actionNode).removeClass('product-hovered');
+      }
+    );
+  }
+});
+;var App = App || {};
+
+App.views.SideBarView = Backbone.View.extend({
+  el: '#sidebar',
+
+  events: {},
+
+  initialize: function() {
+    _.bindAll(this, 'render');
+    this.render();
+  },
+
+  render: function() {
+    var self = this;
+    $.get('/src/templates/sidebar.hbs', function(templateHtml) {
+      var template = Handlebars.compile(templateHtml);
+      var finalHtml = template();
+      self.$el.html(finalHtml);
+    });
+    return self;
+  }
+});
+;var App = App || {};
+
+App.views.TopActionBarView = Backbone.View.extend({
+  el: "#catalog__top-action-bar",
+
+  events: {
+    "click #list-view": "chooseListView",
+    "click #two-grid-view": "chooseTwoGridView",
+    "click #three-grid-view": "chooseThreeGridView",
+    "change #sort": "sortProducts"
+  },
+
+  initialize: function(options) {
+    this.options = options || {};
+    _.bindAll(this, "render");
+    this.render();
+  },
+
+  render: function() {
+    var self = this;
+    $.get("/src/templates/topactionbar.hbs", function(templateHtml) {
+      var template = Handlebars.compile(templateHtml);
+      var finalHtml = template({
+        totalCount: self.options.totalCount
+      });
+      self.$el.html(finalHtml);
+    });
+    return self;
+  },
+
+  chooseListView: function() {
+    App.eventBus.trigger("GRID_UPDATE", {
+      viewSelected: "col-md-12"
+    });
+  },
+
+  chooseTwoGridView: function() {
+    App.eventBus.trigger("GRID_UPDATE", {
+      viewSelected: "col-md-6"
+    });
+  },
+
+  chooseThreeGridView: function() {
+    App.eventBus.trigger("GRID_UPDATE", {
+      viewSelected: "col-md-4"
+    });
+  },
+
+  sortProducts: function() {
+  }
+});
+;var App = App || {};
+
 App.Router = Backbone.Router.extend({
   routes: {
     '': 'homeView',
@@ -19609,6 +19844,7 @@ App.Router = Backbone.Router.extend({
   },
 
   catalogView: function() {
+    new App.views.CatalogView();
   }
 });
 ;(function() {

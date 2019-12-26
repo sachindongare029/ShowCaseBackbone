@@ -1,0 +1,42 @@
+<div class="top-action-bar">
+  <div class="row">
+    <div class="submenu-bar-left-col col-md-4">
+      <div class="product-count">{{totalCount}} items</div>
+      <div class="product-view-options">
+        <i class="fa fa-list" aria-hidden="true" id="list-view"></i>
+        <i class="fa fa-th-large" aria-hidden="true" id="two-grid-view"></i>
+        <i class="fa fa-th" aria-hidden="true" id="three-grid-view"></i>
+      </div>
+    </div>
+    <div class="submenu-bar-right-col col-md-8">
+      <span class="all-to-wishlist-btn-wrapper">
+        <button type="button" class="btn all-to-wishlist-btn">
+          Add all to wishlist
+        </button>
+      </span>
+      <div class="sort-select">
+        <select id="sort">
+          <option value="">Sort</option>
+          <option value="pricing.retail;asc">Price Low to High</option>
+          <option value="pricing.retail;desc">Price High to Low</option>
+          <option value="company.optName;asc">Brands A to Z</option>
+          <option value="company.optName;desc">Brands Z to A</option>
+          <option value="attributes.brand_Collection;asc">Collection A to Z</option>
+          <option value="attributes.brand_Collection;desc">Collection Z to A</option>
+          <option value="opt.styleNumber;asc">Style # A to Z </option>
+          <option value="opt.styleNumber;desc">Style # Z to A </option>
+          <option value="categories.name;asc">Category A to Z</option>
+          <option value="categories.name;desc">Category Z to A</option>
+        </select>
+      </div>
+      <div class="page-select">
+        <select id="items-per-page">
+          <option value="10">Items per page</option>
+          <option value="24" selected>24</option>
+          <option value="48">48</option>
+          <option value="72">72</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
