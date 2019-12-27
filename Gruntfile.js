@@ -79,6 +79,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-concat-css');
 
 
-  grunt.registerTask('default', ['copy', 'less', 'concat', 'concat_css', 'watch']);
+  grunt.registerTask('default', ['uglify', 'copy', 'less', 'concat', 'concat_css', 'watch']);
 
 };
