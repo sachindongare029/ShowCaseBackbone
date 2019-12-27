@@ -19520,7 +19520,7 @@ App.models.DesignersDataModel = Backbone.Model.extend({
 App.models.ProductModel = Backbone.Model.extend({
   url: function() {
     return (
-      'https://opt-showcase-api.optcentral.com/products/' + this.get('_id')
+      'https://opt-showcase-api.optcentral.com/products/'
     );
   },
   defaults: {
