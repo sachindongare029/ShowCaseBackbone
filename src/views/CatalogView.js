@@ -5,14 +5,16 @@ App.views.CatalogView = Backbone.View.extend({
 
   events: {},
 
-  initialize: function() {
+  initialize: function(options) {
+    this.options = options;
     _.bindAll(this, 'render', 'doFetch');
     this.collection = new App.collections.ProductCollection();
     App.helpers.setFilters({
       page: 1,
       limit: 24,
       sort: 'pricing.retail;desc',
-      view: 'col-md-4'
+      view: 'col-md-4',
+      brands: this.options.brandName
     });
     App.eventBus.on(
       "GET_PRODUCTS",

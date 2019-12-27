@@ -13,7 +13,7 @@ Handlebars.registerHelper('list', function(designers, options) {
 
     for (var j = 0; j < designers.length; j++) {
       if (designers[j].name.substr(0, 1) === startWithCharacters[i]) {
-        out = out + '<p>' + designers[j].name + '</p>';
+        out = out + "<p><a href='#/catalog/b/"+ designers[j].slug +"'>" + designers[j].name + "</a></p>";
       }
     }
   }

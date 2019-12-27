@@ -19468,7 +19468,7 @@ App.templateManager = new TemplateManager();
 
     for (var j = 0; j < designers.length; j++) {
       if (designers[j].name.substr(0, 1) === startWithCharacters[i]) {
-        out = out + '<p>' + designers[j].name + '</p>';
+        out = out + "<p><a href='#/catalog/b/"+ designers[j].slug +"'>" + designers[j].name + "</a></p>";
       }
     }
   }
@@ -19558,14 +19558,16 @@ App.views.CatalogView = Backbone.View.extend({
 
   events: {},
 
-  initialize: function() {
+  initialize: function(options) {
+    this.options = options;
     _.bindAll(this, 'render', 'doFetch');
     this.collection = new App.collections.ProductCollection();
     App.helpers.setFilters({
       page: 1,
       limit: 24,
       sort: 'pricing.retail;desc',
-      view: 'col-md-4'
+      view: 'col-md-4',
+      brands: this.options.brandName
     });
     App.eventBus.on(
       "GET_PRODUCTS",
@@ -20073,7 +20075,8 @@ App.Router = Backbone.Router.extend({
   routes: {
     '': 'homeView',
     designers: 'designerView',
-    catalog: 'catalogView'
+    catalog: 'catalogView',
+    'catalog/b/:bid': 'catalogView'
   },
 
   initialize: function(options) {
@@ -20088,8 +20091,16 @@ App.Router = Backbone.Router.extend({
     new App.views.DesignerViewContainer();
   },
 
-  catalogView: function() {
-    new App.views.CatalogView();
+  catalogView: function(bid) {
+    if (bid) {
+      new App.views.CatalogView({
+        brandName: bid
+      });
+    } else {
+      new App.views.CatalogView({
+        brandName: ""
+      });
+    }
   }
 });
 ;(function() {

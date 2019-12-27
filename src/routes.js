@@ -4,7 +4,8 @@ App.Router = Backbone.Router.extend({
   routes: {
     '': 'homeView',
     designers: 'designerView',
-    catalog: 'catalogView'
+    catalog: 'catalogView',
+    'catalog/b/:bid': 'catalogView'
   },
 
   initialize: function(options) {
@@ -19,7 +20,15 @@ App.Router = Backbone.Router.extend({
     new App.views.DesignerViewContainer();
   },
 
-  catalogView: function() {
-    new App.views.CatalogView();
+  catalogView: function(bid) {
+    if (bid) {
+      new App.views.CatalogView({
+        brandName: bid
+      });
+    } else {
+      new App.views.CatalogView({
+        brandName: ""
+      });
+    }
   }
 });
