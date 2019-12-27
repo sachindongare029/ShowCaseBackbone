@@ -11,7 +11,8 @@ App.views.CatalogView = Backbone.View.extend({
     App.helpers.setFilters({
       page: 1,
       limit: 24,
-      sort: 'pricing.retail;desc'
+      sort: 'pricing.retail;desc',
+      view: 'col-md-4'
     });
     App.eventBus.on(
       "GET_PRODUCTS",
@@ -40,6 +41,7 @@ App.views.CatalogView = Backbone.View.extend({
       self.renderSidebarView();
       self.renderProductContainerView();
     });
+
     return self;
   },
 
@@ -48,11 +50,20 @@ App.views.CatalogView = Backbone.View.extend({
   },
 
   renderProductContainerView: function() {
+    var appliedFilters = App.helpers.getFilters();
     new App.views.TopActionBarView({
       totalCount: this.collection.totalCount
     });
+    if (appliedFilters.search) {
+      new App.views.SearchCriteriaView({
+        criteria: appliedFilters.search
+      });
+    }
     new App.views.ProductView({
       products: this.collection.toJSON()
+    });
+    new App.views.PaginationView({
+      totalCount: this.collection.totalCount
     });
   }
 });

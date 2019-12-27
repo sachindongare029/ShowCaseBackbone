@@ -1,0 +1,12 @@
+{{#if criteria.length}}
+{{!-- {{log criteria}} --}}
+  <div class="search-criteria-wrapper">
+    <span class="criteria-label">current search criteria:&nbsp;</span>
+    <ul>
+      {{!-- {{#each criteria}} --}}
+      <li class="criteria-li"><button id="criteria">{{criteria}}<i class="fa fa-times" aria-hidden="true"></i></button></li>
+      {{!-- {{/each}} --}}
+    </ul>
+  </div>
+{{else}}
+{{/if}}

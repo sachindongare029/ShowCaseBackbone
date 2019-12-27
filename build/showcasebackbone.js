@@ -19564,7 +19564,8 @@ App.views.CatalogView = Backbone.View.extend({
     App.helpers.setFilters({
       page: 1,
       limit: 24,
-      sort: 'pricing.retail;desc'
+      sort: 'pricing.retail;desc',
+      view: 'col-md-4'
     });
     App.eventBus.on(
       "GET_PRODUCTS",
@@ -19593,6 +19594,7 @@ App.views.CatalogView = Backbone.View.extend({
       self.renderSidebarView();
       self.renderProductContainerView();
     });
+
     return self;
   },
 
@@ -19601,11 +19603,20 @@ App.views.CatalogView = Backbone.View.extend({
   },
 
   renderProductContainerView: function() {
+    var appliedFilters = App.helpers.getFilters();
     new App.views.TopActionBarView({
       totalCount: this.collection.totalCount
     });
+    if (appliedFilters.search) {
+      new App.views.SearchCriteriaView({
+        criteria: appliedFilters.search
+      });
+    }
     new App.views.ProductView({
       products: this.collection.toJSON()
+    });
+    new App.views.PaginationView({
+      totalCount: this.collection.totalCount
     });
   }
 });
@@ -19650,12 +19661,12 @@ App.views.DesignerViewContainer = Backbone.View.extend({
 ;var App = App || {};
 
 App.views.HomeView = Backbone.View.extend({
-  el: '#root',
+  el: "#root",
 
   events: {},
 
   initialize: function() {
-    _.bindAll(this, 'render');
+    _.bindAll(this, "render");
     this.render();
   },
 
@@ -19672,14 +19683,14 @@ App.views.HomeView = Backbone.View.extend({
 ;var App = App || {};
 
 App.views.MenuView = Backbone.View.extend({
-  el: '#menu',
+  el: "#menu",
 
   events: {
-    'click a': 'onClick'
+    "click a": "onClick"
   },
 
   initialize: function() {
-    _.bindAll(this, 'render');
+    _.bindAll(this, "render");
     this.render();
   },
 
@@ -19690,11 +19701,88 @@ App.views.MenuView = Backbone.View.extend({
       var finalHtml = template();
       self.$el.html(finalHtml);
     });
-    return self;
+  	return self;
   },
-  onClick: function(e) {
+  onClick: function( e ) {
     // Uses the navigate() method save the application as URL
     // App.router.navigate('/');
+  }
+});
+;var App = App || {};
+
+App.views.PaginationView = Backbone.View.extend({
+  el: "#catalog__products-pagination",
+
+  events: {
+    "click .prev-page": "prevPage",
+    "click .next-page": "nextPage"
+  },
+
+  initialize: function(options) {
+    this.options = options || {};
+    _.bindAll(this, "render");
+    this.render();
+  },
+
+  render: function() {
+    var self = this;
+    var appliedFilters = App.helpers.getFilters();
+    var countOfProduct = self.options.totalCount;
+    var numberOfPages = countOfProduct / appliedFilters.limit;
+    var itemDisplayed = appliedFilters.page * appliedFilters.limit;
+    var prevPage = "<< Previous Page |&nbsp;";
+    var nextPageNode = " | Next Page >>";
+    if (appliedFilters.page === 1) {
+      prevPage = "";
+    }
+    if (appliedFilters.page === parseInt(numberOfPages) + 1) {
+      nextPageNode = "";
+    }
+    var countNode =
+      "<div class='pagination'><span class='prev-page'>" +
+      prevPage +
+      "</span> page " +
+      appliedFilters.page +
+      " | " +
+      itemDisplayed +
+      " of " +
+      countOfProduct +
+      "&nbsp;<span class='next-page'>" +
+      nextPageNode +
+      "</span></div>";
+
+    $.get("/src/templates/catalog.hbs", function(templateHtml) {
+      var template = Handlebars.compile(templateHtml);
+      self.$el.html(template());
+      self.$el.html(countNode);
+    });
+    return this;
+  },
+
+  prevPage: function() {
+    var appliedFilters = App.helpers.getFilters();
+    var nextPage = appliedFilters.page - 1;
+    App.helpers.setFilters({
+      page: nextPage,
+      view: appliedFilters.view
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      page: nextPage,
+      view: appliedFilters.view
+    });
+  },
+
+  nextPage: function(e) {
+    var appliedFilters = App.helpers.getFilters();
+    var nextPage = appliedFilters.page + 1;
+    App.helpers.setFilters({
+      page: nextPage,
+      view: appliedFilters.view
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      page: nextPage,
+      view: appliedFilters.view
+    });
   }
 });
 ;var App = App || {};
@@ -19721,16 +19809,47 @@ App.views.ProductView = Backbone.View.extend({
   },
 
   selectView: function(eventData) {
+    $(".product-header").css("display", "none");
+    if($('#catalog__top-action-bar').find(".fa").hasClass("active")) {
+      $('#catalog__top-action-bar').find(".fa").removeClass("active")
+    }
+    if (this.$el.find(".product").hasClass("list-view-hide")) {
+      this.$el.find(".product").removeClass("list-view-hide");
+      this.$el.find(".product-list-view").removeClass("list-view-display");
+    }
+
+    if (this.$el.find(".product").hasClass("col-md-4")) {
+      this.$el.find(".product").removeClass("col-md-4");
+    } else if (this.$el.find(".product").hasClass("col-md-6")) {
+      this.$el.find(".product").removeClass("col-md-6");
+    } else if (this.$el.find(".product").hasClass("col-md-12")) {
+      this.$el.find(".product").removeClass("col-md-12");
+    }
+
+    if (eventData) {
+      this.$el.find(".product").addClass(eventData.viewSelected);
+    }
+    if (eventData && eventData.viewSelected === "col-md-12") {
+      this.$el.find(".product").addClass("list-view-hide");
+      this.$el.find(".product-list-view").addClass("list-view-display");
+      $(".product-header").css('display', 'block');
+    }
+    var appliedFilters = App.helpers.getFilters();
+    $('#catalog__top-action-bar').find("#" + appliedFilters.view).addClass('active');
   },
 
   render: function() {
     var self = this;
+    var appliedFilters = App.helpers.getFilters();
     $.get('/src/templates/productcontainer.hbs', function(templateHtml) {
       var template = Handlebars.compile(templateHtml);
       var finalHtml = template({
         products: self.options.products
       });
       self.$el.html(finalHtml);
+      App.eventBus.trigger("GRID_UPDATE", {
+        viewSelected: appliedFilters.view
+      });
     });
     return self;
   },
@@ -19751,24 +19870,115 @@ App.views.ProductView = Backbone.View.extend({
 });
 ;var App = App || {};
 
-App.views.SideBarView = Backbone.View.extend({
-  el: '#sidebar',
+App.views.SearchCriteriaView = Backbone.View.extend({
+  el: "#catalog__search-criteria",
 
-  events: {},
+  events: {
+    "click #criteria": "clearCriteria"
+  },
 
-  initialize: function() {
-    _.bindAll(this, 'render');
+  initialize: function(options) {
+    _.bindAll(this, "render", "clearCriteria");
+    this.options = options;
     this.render();
   },
 
   render: function() {
     var self = this;
-    $.get('/src/templates/sidebar.hbs', function(templateHtml) {
+
+    $.get("/src/templates/searchcriteria.hbs", function(templateHtml) {
+      var template = Handlebars.compile(templateHtml);
+      var finalHtml = template({
+        criteria: self.options.criteria
+      });
+      self.$el.html(finalHtml);
+    });
+    return this;
+  },
+
+  clearCriteria: function(e) {
+    $("input").val("");
+    localStorage.removeItem("filters");
+    App.helpers.setFilters({
+      page: 1,
+      limit: 24,
+      sort: "pricing.retail;desc",
+      view: "col-md-4"
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      page: 1,
+      limit: 24,
+      sort: "pricing.retail;desc"
+    });
+  }
+});
+;var App = App || {};
+
+App.views.SideBarView = Backbone.View.extend({
+  el: "#sidebar",
+
+  events: {
+    'click #reset-filter-btn': 'resetFilters',
+    "click #search-btn": "searchByText"
+  },
+
+  initialize: function() {
+    _.bindAll(this, "render");
+    this.render();
+  },
+
+  render: function() {
+    var self = this;
+    var addedfilters = App.helpers.getFilters();
+    $.get("/src/templates/sidebar.hbs", function(templateHtml) {
       var template = Handlebars.compile(templateHtml);
       var finalHtml = template();
       self.$el.html(finalHtml);
+      if (addedfilters.search) {
+        self.$el.find("#srch-by-keyword").val(addedfilters.search);
+      }
     });
     return self;
+  },
+  resetFilters: function() {
+    $("input").val("");
+    localStorage.removeItem("filters");
+    App.helpers.setFilters({
+      page: 1,
+      limit: 24,
+      sort: "pricing.retail;desc",
+      view: 'col-md-4'
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      page: 1,
+      limit: 24,
+      sort: "pricing.retail;desc"
+    });
+  },
+
+  searchByText: function() {
+    var searchByTextVal = this.$el.find("#srch-by-keyword").val();
+    if (searchByTextVal === "") {
+      // localStorage.removeItem("filters");
+      // App.helpers.setFilters({
+      //   page: 1,
+      //   limit: 24,
+      //   sort: "pricing.retail;desc"
+      // });
+      // App.eventBus.trigger("GET_PRODUCTS", {
+      //   page: 1,
+      //   limit: 24,
+      //   sort: "pricing.retail;desc"
+      // });
+      return;
+    } else {
+      App.helpers.setFilters({
+        search: searchByTextVal
+      });
+      App.eventBus.trigger("GET_PRODUCTS", {
+        search: searchByTextVal
+      });
+    }
   }
 });
 ;var App = App || {};
@@ -19777,10 +19987,11 @@ App.views.TopActionBarView = Backbone.View.extend({
   el: "#catalog__top-action-bar",
 
   events: {
-    "click #list-view": "chooseListView",
-    "click #two-grid-view": "chooseTwoGridView",
-    "click #three-grid-view": "chooseThreeGridView",
-    "change #sort": "sortProducts"
+    "click #col-md-12": "chooseListView",
+    "click #col-md-6": "chooseTwoGridView",
+    "click #col-md-4": "chooseThreeGridView",
+    "change #sort": "sortProducts",
+    "change #items-per-page": "productPerPage"
   },
 
   initialize: function(options) {
@@ -19791,35 +20002,69 @@ App.views.TopActionBarView = Backbone.View.extend({
 
   render: function() {
     var self = this;
+    var addedFilters = App.helpers.getFilters();
     $.get("/src/templates/topactionbar.hbs", function(templateHtml) {
       var template = Handlebars.compile(templateHtml);
       var finalHtml = template({
         totalCount: self.options.totalCount
       });
       self.$el.html(finalHtml);
+      self.$el
+        .find('#sort option[value="' + addedFilters.sort + '"]')
+        .attr("selected", "selected");
+      self.$el
+        .find('#items-per-page option[value="' + addedFilters.limit + '"]')
+        .attr("selected", "selected");
     });
     return self;
   },
 
   chooseListView: function() {
+    App.helpers.setFilters({
+      view: 'col-md-12'
+    });
     App.eventBus.trigger("GRID_UPDATE", {
       viewSelected: "col-md-12"
     });
   },
 
   chooseTwoGridView: function() {
+    App.helpers.setFilters({
+      view: 'col-md-6'
+    });
     App.eventBus.trigger("GRID_UPDATE", {
       viewSelected: "col-md-6"
     });
   },
 
   chooseThreeGridView: function() {
+    App.helpers.setFilters({
+      view: 'col-md-4'
+    });
     App.eventBus.trigger("GRID_UPDATE", {
       viewSelected: "col-md-4"
     });
   },
 
   sortProducts: function() {
+    var selectedSortOption = this.$el.find("#sort option:selected").val();
+
+    App.helpers.setFilters({
+      sort: selectedSortOption
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      sort: selectedSortOption
+    });
+  },
+
+  productPerPage: function() {
+    var selectedPageLimit = this.$el.find("#items-per-page option:selected").val();
+    App.helpers.setFilters({
+      limit: selectedPageLimit
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      limit: selectedPageLimit
+    });
   }
 });
 ;var App = App || {};

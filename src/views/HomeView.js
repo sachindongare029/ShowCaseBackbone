@@ -1,12 +1,12 @@
 var App = App || {};
 
 App.views.HomeView = Backbone.View.extend({
-  el: '#root',
+  el: "#root",
 
   events: {},
 
   initialize: function() {
-    _.bindAll(this, 'render');
+    _.bindAll(this, "render");
     this.render();
   },
 
