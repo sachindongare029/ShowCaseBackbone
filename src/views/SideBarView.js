@@ -4,8 +4,9 @@ App.views.SideBarView = Backbone.View.extend({
   el: "#sidebar",
 
   events: {
-    'click #reset-filter-btn': 'resetFilters',
-    "click #search-btn": "searchByText"
+    "click #reset-filter-btn": "resetFilters",
+    "click #search-btn": "searchByText",
+    "click #price-search-btn": "searchByPrice"
   },
 
   initialize: function() {
@@ -23,6 +24,12 @@ App.views.SideBarView = Backbone.View.extend({
       if (addedfilters.search) {
         self.$el.find("#srch-by-keyword").val(addedfilters.search);
       }
+      if (addedfilters.price_max) {
+        self.$el.find("#price-end").val(addedfilters.price_max);
+      }
+      if (addedfilters.price_min) {
+        self.$el.find("#price-start").val(addedfilters.price_min);
+      }
     });
     return self;
   },
@@ -33,7 +40,7 @@ App.views.SideBarView = Backbone.View.extend({
       page: 1,
       limit: 24,
       sort: "pricing.retail;desc",
-      view: 'col-md-4'
+      view: "col-md-4"
     });
     App.eventBus.trigger("GET_PRODUCTS", {
       page: 1,
@@ -45,17 +52,6 @@ App.views.SideBarView = Backbone.View.extend({
   searchByText: function() {
     var searchByTextVal = this.$el.find("#srch-by-keyword").val();
     if (searchByTextVal === "") {
-      // localStorage.removeItem("filters");
-      // App.helpers.setFilters({
-      //   page: 1,
-      //   limit: 24,
-      //   sort: "pricing.retail;desc"
-      // });
-      // App.eventBus.trigger("GET_PRODUCTS", {
-      //   page: 1,
-      //   limit: 24,
-      //   sort: "pricing.retail;desc"
-      // });
       return;
     } else {
       App.helpers.setFilters({
@@ -65,5 +61,17 @@ App.views.SideBarView = Backbone.View.extend({
         search: searchByTextVal
       });
     }
+  },
+  searchByPrice: function() {
+    var minPrice = this.$el.find("#price-start").val();
+    var maxPrice = this.$el.find("#price-end").val();
+    App.helpers.setFilters({
+      price_min: minPrice,
+      price_max: maxPrice
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      price_min: minPrice,
+      price_max: maxPrice
+    });
   }
 });
