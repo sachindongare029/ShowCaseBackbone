@@ -19922,7 +19922,8 @@ App.views.SideBarView = Backbone.View.extend({
   events: {
     "click #reset-filter-btn": "resetFilters",
     "click #search-btn": "searchByText",
-    "click #price-search-btn": "searchByPrice"
+    "click #price-search-btn": "searchByPrice",
+    "click #shop-all": "shopAll"
   },
 
   initialize: function() {
@@ -19988,6 +19989,21 @@ App.views.SideBarView = Backbone.View.extend({
     App.eventBus.trigger("GET_PRODUCTS", {
       price_min: minPrice,
       price_max: maxPrice
+    });
+  },
+  shopAll: function() {
+    $("input").val("");
+    localStorage.removeItem("filters");
+    App.helpers.setFilters({
+      page: 1,
+      limit: 24,
+      sort: "pricing.retail;desc",
+      view: "col-md-4"
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      page: 1,
+      limit: 24,
+      sort: "pricing.retail;desc"
     });
   }
 });
