@@ -12,11 +12,45 @@ App.views.SideBarView = Backbone.View.extend({
 
   initialize: function() {
     _.bindAll(this, "render");
-    this.render();
+    var self = this;
+    $.ajax({
+      type: "GET",
+      url:
+        "https://opt-showcase-api-stage.optcentral.com/products?brand_ids=3,2,46,463,581,50,1119,145,1801,2086&limit=60&retailerId=143&showcase=OOO&sort=pricing.retail;desc&status=Active",
+      dataType: "json",
+      success: function(response) {
+        var that = self;
+        that.render(response.data);
+      }
+    });
   },
 
-  render: function() {
+  render: function(options) {
     var self = this;
+    var brands = [];
+    var categories = [];
+    var color = [];
+    var stone = [];
+    var metalArr = [];
+    options.map((option) => {
+      if (brands.includes(option.brand.name) === false) {
+        brands.push(option.brand.name);
+      }
+      option.categories.map((category) => {
+        if (categories.includes(category.name) === false) {
+          categories.push(category.name);
+        }
+      });
+      if (option.attributes.Metal) {
+        option.attributes.Metal.map(metal => {
+          if (metalArr.includes(metal) === false) {
+            metalArr.push(metal);
+          }
+        })
+      }
+      console.log("option", option);
+    })
+    console.log("metal", metalArr);
     var addedfilters = App.helpers.getFilters();
     $.get("/src/templates/sidebar.hbs", function(templateHtml) {
       var template = Handlebars.compile(templateHtml);
