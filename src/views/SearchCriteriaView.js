@@ -9,7 +9,6 @@ App.views.SearchCriteriaView = Backbone.View.extend({
 
   initialize: function(options) {
     _.bindAll(this, "render", "clearCriteria");
-    // console.log("options", options.criteria);
     this.options = options.criteria;
     this.render();
   },
@@ -28,13 +27,16 @@ App.views.SearchCriteriaView = Backbone.View.extend({
   },
 
   clearCriteria: function(e) {
-    $("input").val("");
-    localStorage.removeItem("filters");
+    var prntNode = e.target.parentNode;
+    var clearFilter = $(prntNode).text();
+    var filterToClear = _.invert(App.helpers.getFilters())[clearFilter];
+    console.log("clear", filterToClear);
+    if (filterToClear === "search") {
+      $("input").val("");
+    }
+    // localStorage.removeItem("filters");
     App.helpers.setFilters({
-      page: 1,
-      limit: 24,
-      sort: "pricing.retail;desc",
-      view: "col-md-4"
+      [filterToClear]: ''
     });
     App.eventBus.trigger("GET_PRODUCTS", {
       page: 1,

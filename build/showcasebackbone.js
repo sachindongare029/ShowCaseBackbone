@@ -19572,7 +19572,7 @@ App.views.CatalogView = Backbone.View.extend({
     });
     App.eventBus.on(
       "GET_PRODUCTS",
-      function(eventData) {
+      function() {
         this.doFetch();
       }.bind(this)
     );
@@ -19610,9 +19610,23 @@ App.views.CatalogView = Backbone.View.extend({
     new App.views.TopActionBarView({
       totalCount: this.collection.totalCount
     });
-    if (appliedFilters.search || appliedFilters.brands) {
+    if (
+      appliedFilters.search ||
+      appliedFilters.brands ||
+      appliedFilters.categories ||
+      appliedFilters["attributes.Gemstone Color"] ||
+      appliedFilters["attributes.Gemstone Type"] ||
+      appliedFilters["attributes.Metal"]
+    ) {
       new App.views.SearchCriteriaView({
-        criteria: [appliedFilters.search, appliedFilters.brands]
+        criteria: [
+          appliedFilters.search,
+          appliedFilters.brands,
+          appliedFilters.categories,
+          appliedFilters["attributes.Gemstone Color"],
+          appliedFilters["attributes.Gemstone Type"],
+          appliedFilters["attributes.Metal"]
+        ]
       });
     }
     new App.views.ProductView({
@@ -19892,7 +19906,6 @@ App.views.SearchCriteriaView = Backbone.View.extend({
 
   initialize: function(options) {
     _.bindAll(this, "render", "clearCriteria");
-    // console.log("options", options.criteria);
     this.options = options.criteria;
     this.render();
   },
@@ -19911,13 +19924,16 @@ App.views.SearchCriteriaView = Backbone.View.extend({
   },
 
   clearCriteria: function(e) {
-    $("input").val("");
-    localStorage.removeItem("filters");
+    var prntNode = e.target.parentNode;
+    var clearFilter = $(prntNode).text();
+    var filterToClear = _.invert(App.helpers.getFilters())[clearFilter];
+    console.log("clear", filterToClear);
+    if (filterToClear === "search") {
+      $("input").val("");
+    }
+    // localStorage.removeItem("filters");
     App.helpers.setFilters({
-      page: 1,
-      limit: 24,
-      sort: "pricing.retail;desc",
-      view: "col-md-4"
+      [filterToClear]: ''
     });
     App.eventBus.trigger("GET_PRODUCTS", {
       page: 1,

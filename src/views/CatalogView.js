@@ -19,7 +19,7 @@ App.views.CatalogView = Backbone.View.extend({
     });
     App.eventBus.on(
       "GET_PRODUCTS",
-      function(eventData) {
+      function() {
         this.doFetch();
       }.bind(this)
     );
@@ -57,9 +57,23 @@ App.views.CatalogView = Backbone.View.extend({
     new App.views.TopActionBarView({
       totalCount: this.collection.totalCount
     });
-    if (appliedFilters.search || appliedFilters.brands) {
+    if (
+      appliedFilters.search ||
+      appliedFilters.brands ||
+      appliedFilters.categories ||
+      appliedFilters["attributes.Gemstone Color"] ||
+      appliedFilters["attributes.Gemstone Type"] ||
+      appliedFilters["attributes.Metal"]
+    ) {
       new App.views.SearchCriteriaView({
-        criteria: [appliedFilters.search, appliedFilters.brands]
+        criteria: [
+          appliedFilters.search,
+          appliedFilters.brands,
+          appliedFilters.categories,
+          appliedFilters["attributes.Gemstone Color"],
+          appliedFilters["attributes.Gemstone Type"],
+          appliedFilters["attributes.Metal"]
+        ]
       });
     }
     new App.views.ProductView({
