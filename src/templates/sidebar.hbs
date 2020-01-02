@@ -1,3 +1,8 @@
+{{!-- {{log brands}} --}}
+{{!-- {{log categories}} --}}
+{{!-- {{log metal}} --}}
+{{!-- {{log color}} --}}
+{{!-- {{log stone}} --}}
 <button id="reset-filter-btn" class="btn btn-block btn-secondary">Reset Filter</button>
 <div class="keyword-filter">
   <h5 class="search-label">SHOP BY KEYWORD</h5>
@@ -33,9 +38,9 @@
     </a>
     <div class="collapse" id="brands">
       <ul>
-        <li>hiii</li>
-        <li>helloo</li>
-        <li>hoooo</li>
+        {{#each brands as |item|}}
+          <li><a>{{item}}</a></li>
+        {{/each}}
       </ul>
     </div>
   </div>
@@ -46,9 +51,9 @@
     </a>
     <div class="collapse" id="categories">
       <ul>
-        <li>hiii</li>
-        <li>helloo</li>
-        <li>hoooo</li>
+        {{#each categories as |item|}}
+        <li><a>{{item}}</a></li>
+        {{/each}}
       </ul>
     </div>
   </div>
@@ -59,9 +64,9 @@
     </a>
     <div class="collapse" id="color">
       <ul>
-        <li>hiii</li>
-        <li>helloo</li>
-        <li>hoooo</li>
+        {{#each color as |item|}}
+        <li><a>{{item}}</a></li>
+        {{/each}}
       </ul>
     </div>
   </div>
@@ -72,9 +77,9 @@
     </a>
     <div class="collapse" id="stone">
       <ul>
-        <li>hiii</li>
-        <li>helloo</li>
-        <li>hoooo</li>
+        {{#each stone as |item|}}
+        <li><a>{{item}}</a></li>
+        {{/each}}
       </ul>
     </div>
   </div>
@@ -85,9 +90,9 @@
     </a>
     <div class="collapse" id="metal">
       <ul>
-        <li>hiii</li>
-        <li>helloo</li>
-        <li>hoooo</li>
+        {{#each metal as |item|}}
+        <li><a>{{item}}</a></li>
+        {{/each}}
       </ul>
     </div>
   </div>

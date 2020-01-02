@@ -7,7 +7,8 @@ App.views.SideBarView = Backbone.View.extend({
     "click #reset-filter-btn": "resetFilters",
     "click #search-btn": "searchByText",
     "click #price-search-btn": "searchByPrice",
-    "click #shop-all": "shopAll"
+    "click #shop-all": "shopAll",
+    "click .accordion-toggle": "accordionIcon"
   },
 
   initialize: function() {
@@ -29,14 +30,14 @@ App.views.SideBarView = Backbone.View.extend({
     var self = this;
     var brands = [];
     var categories = [];
-    var color = [];
-    var stone = [];
+    var colorArr = [];
+    var stoneArr = [];
     var metalArr = [];
-    options.map((option) => {
+    options.map(option => {
       if (brands.includes(option.brand.name) === false) {
         brands.push(option.brand.name);
       }
-      option.categories.map((category) => {
+      option.categories.map(category => {
         if (categories.includes(category.name) === false) {
           categories.push(category.name);
         }
@@ -46,15 +47,33 @@ App.views.SideBarView = Backbone.View.extend({
           if (metalArr.includes(metal) === false) {
             metalArr.push(metal);
           }
-        })
+        });
       }
-      console.log("option", option);
-    })
-    console.log("metal", metalArr);
+      if (option.attributes["Gemstone Color"]) {
+        option.attributes["Gemstone Color"].map(color => {
+          if (colorArr.includes(color) === false) {
+            colorArr.push(color);
+          }
+        });
+      }
+      if (option.attributes["Gemstone Type"]) {
+        option.attributes["Gemstone Type"].map(stone => {
+          if (stoneArr.includes(stone) === false) {
+            stoneArr.push(stone);
+          }
+        });
+      }
+    });
     var addedfilters = App.helpers.getFilters();
     $.get("/src/templates/sidebar.hbs", function(templateHtml) {
       var template = Handlebars.compile(templateHtml);
-      var finalHtml = template();
+      var finalHtml = template({
+        brands: brands,
+        categories: categories,
+        metal: metalArr,
+        color: colorArr,
+        stone: stoneArr
+      });
       self.$el.html(finalHtml);
       if (addedfilters.search) {
         self.$el.find("#srch-by-keyword").val(addedfilters.search);
@@ -123,5 +142,14 @@ App.views.SideBarView = Backbone.View.extend({
       limit: 24,
       sort: "pricing.retail;desc"
     });
+  },
+
+  accordionIcon: function(e) {
+    var havingClass = this.$el.find(e.target).find(".fa").hasClass('fa-plus');
+    if(havingClass) {
+      this.$el.find(e.target).find(".fa").removeClass('fa-plus').addClass('fa-minus');
+    } else {
+      this.$el.find(e.target).find(".fa").removeClass('fa-minus').addClass('fa-plus');
+    }
   }
 });
