@@ -106,6 +106,9 @@ body {
 }
 .catalog-container {
   .sidebar {
+    position: sticky;
+    top: 16%;
+    height: 100vh;
     .btn-block {
       height: 50px;
       font-size: 16px;
@@ -196,6 +199,7 @@ body {
       }
     }
   }
+  .sidebar::-webkit-scrollbar { width: 0 !important }
   .product-container {
 		.top-action-bar {
       height: 60px;
