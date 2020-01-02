@@ -9,7 +9,8 @@ App.views.SearchCriteriaView = Backbone.View.extend({
 
   initialize: function(options) {
     _.bindAll(this, "render", "clearCriteria");
-    this.options = options;
+    // console.log("options", options.criteria);
+    this.options = options.criteria;
     this.render();
   },
 
@@ -19,7 +20,7 @@ App.views.SearchCriteriaView = Backbone.View.extend({
     $.get("/src/templates/searchcriteria.hbs", function(templateHtml) {
       var template = Handlebars.compile(templateHtml);
       var finalHtml = template({
-        criteria: self.options.criteria
+        criteria: self.options
       });
       self.$el.html(finalHtml);
     });

@@ -56,9 +56,9 @@ App.views.CatalogView = Backbone.View.extend({
     new App.views.TopActionBarView({
       totalCount: this.collection.totalCount
     });
-    if (appliedFilters.search) {
+    if (appliedFilters.search || appliedFilters.brands) {
       new App.views.SearchCriteriaView({
-        criteria: appliedFilters.search
+        criteria: [appliedFilters.search, appliedFilters.brands]
       });
     }
     new App.views.ProductView({

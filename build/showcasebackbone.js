@@ -19609,9 +19609,9 @@ App.views.CatalogView = Backbone.View.extend({
     new App.views.TopActionBarView({
       totalCount: this.collection.totalCount
     });
-    if (appliedFilters.search) {
+    if (appliedFilters.search || appliedFilters.brands) {
       new App.views.SearchCriteriaView({
-        criteria: appliedFilters.search
+        criteria: [appliedFilters.search, appliedFilters.brands]
       });
     }
     new App.views.ProductView({
@@ -19881,7 +19881,8 @@ App.views.SearchCriteriaView = Backbone.View.extend({
 
   initialize: function(options) {
     _.bindAll(this, "render", "clearCriteria");
-    this.options = options;
+    // console.log("options", options.criteria);
+    this.options = options.criteria;
     this.render();
   },
 
@@ -19891,7 +19892,7 @@ App.views.SearchCriteriaView = Backbone.View.extend({
     $.get("/src/templates/searchcriteria.hbs", function(templateHtml) {
       var template = Handlebars.compile(templateHtml);
       var finalHtml = template({
-        criteria: self.options.criteria
+        criteria: self.options
       });
       self.$el.html(finalHtml);
     });
@@ -19924,7 +19925,12 @@ App.views.SideBarView = Backbone.View.extend({
     "click #search-btn": "searchByText",
     "click #price-search-btn": "searchByPrice",
     "click #shop-all": "shopAll",
-    "click .accordion-toggle": "accordionIcon"
+    "click .accordion-toggle": "accordionIcon",
+    "click #brands": "accrodianBrandsFilter",
+    "click #categories": "accrodianCategoriesFilter",
+    "click #color": "accrodianColorFilter",
+    "click #stone": "accrodianStoneFilter",
+    "click #metal": "accrodianMetalFilter"
   },
 
   initialize: function() {
@@ -19984,11 +19990,11 @@ App.views.SideBarView = Backbone.View.extend({
     $.get("/src/templates/sidebar.hbs", function(templateHtml) {
       var template = Handlebars.compile(templateHtml);
       var finalHtml = template({
-        brands: brands,
-        categories: categories,
-        metal: metalArr,
-        color: colorArr,
-        stone: stoneArr
+        brands: brands.sort(),
+        categories: categories.sort(),
+        metal: metalArr.sort(),
+        color: colorArr.sort(),
+        stone: stoneArr.sort()
       });
       self.$el.html(finalHtml);
       if (addedfilters.search) {
@@ -20061,12 +20067,73 @@ App.views.SideBarView = Backbone.View.extend({
   },
 
   accordionIcon: function(e) {
-    var havingClass = this.$el.find(e.target).find(".fa").hasClass('fa-plus');
-    if(havingClass) {
-      this.$el.find(e.target).find(".fa").removeClass('fa-plus').addClass('fa-minus');
+    var havingClass = this.$el
+      .find(e.target)
+      .find(".fa")
+      .hasClass("fa-plus");
+    if (havingClass) {
+      this.$el
+        .find(e.target)
+        .find(".fa")
+        .removeClass("fa-plus")
+        .addClass("fa-minus");
     } else {
-      this.$el.find(e.target).find(".fa").removeClass('fa-minus').addClass('fa-plus');
+      this.$el
+        .find(e.target)
+        .find(".fa")
+        .removeClass("fa-minus")
+        .addClass("fa-plus");
     }
+  },
+
+  accrodianBrandsFilter: function(e) {
+    var brand = e.target.text;
+    App.helpers.setFilters({
+      brands: brand
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      brands: brand
+    });
+  },
+
+  accrodianCategoriesFilter: function(e) {
+    var category = e.target.text;
+    App.helpers.setFilters({
+      categories: category
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      categories: category
+    });
+  },
+
+  accrodianColorFilter: function(e) {
+    var color = e.target.text;
+    App.helpers.setFilters({
+      "attributes.Gemstone Color": color
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      "attributes.Gemstone Color": color
+    });
+  },
+
+  accrodianStoneFilter: function(e) {
+    var stone = e.target.text;
+    App.helpers.setFilters({
+      "attributes.Gemstone Type": stone
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      "attributes.Gemstone Type": stone
+    });
+  },
+
+  accrodianMetalFilter: function(e) {
+    var metal = e.target.text;
+    App.helpers.setFilters({
+      "attributes.Metal": metal
+    });
+    App.eventBus.trigger("GET_PRODUCTS", {
+      "attributes.Metal": metal
+    });
   }
 });
 ;var App = App || {};
